@@ -5,14 +5,44 @@ import {
   Switch,
   StyleSheet,
   SafeAreaView,
-  ScrollView
+  ScrollView,
+  FlatList
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { ShopItemComp } from "./components/ShopItemComp";
+import { Product, ShopItemComp } from "./components/ShopItemComp";
 import { StatusBar } from "expo-status-bar";
 
 const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const products: Array<Product> = [
+    {
+      name: "Wireless 5.3 Headphones, 13mm Speaker, 30H Playtime, Type-C Fast Charging Box",
+      img: "https://img.kwcdn.com/product/fancy/4cb5447a-b90f-495e-a9a8-d25f8894ae02.jpg?imageView2/2/w/800/q/70/format/webp",
+      cost: 643.38
+    },
+    {
+      name: "1080P HD Action Camera Featuring Ultra HD Recording",
+      img: "https://img.kwcdn.com/product/fancy/218d5ebf-68bb-4144-8c0b-10a2f1f522c5.jpg?imageView2/2/w/800/q/70/format/webp",
+      cost: 776.50
+    },
+    {
+      name: "Wireless Polarized Fashion Glasses with Integrated Mic",
+      img: "https://img.kwcdn.com/product/fancy/4bdcf821-6548-4db4-9113-8936faa74533.jpg?imageView2/2/w/800/q/70/format/webp",
+      cost: 277.32
+    },
+    {
+      name: "Solar-Powered, Hand Crank, NOAA AM/FM Weather Radio",
+      img: "https://img.kwcdn.com/product/fancy/02747c7e-0a61-463b-a101-5e6f5388ece5.jpg?imageView2/2/w/800/q/70/format/webp",
+      cost: 1671.32
+    },
+    {
+      name: "Rievbcau Digital USB Microscope with 10.92cm LCD, 1000X Zoom, PC Real-Time View",
+      img: "https://img.kwcdn.com/product/fancy/a805d7f2-37ce-4ac4-aaea-0bf21a88ec0f.jpg?imageView2/2/w/800/q/70/format/webp",
+      cost: 1419.88
+    }
+  ];
+
+  const [productList, setProductList] = useState<Array<Product>>(products);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   return (
     <SafeAreaView
@@ -34,39 +64,19 @@ const App = () => {
           />
         </View>
       </View>
-      <View style={styles.wrapperContainer}>
-        <ScrollView horizontal={true} contentContainerStyle={styles.cardWrapper}>
-          <ShopItemComp
-            name="Wireless 5.3 Headphones, 13mm Speaker, 30H Playtime, Type-C Fast Charging Box"
-            img="https://img.kwcdn.com/product/fancy/4cb5447a-b90f-495e-a9a8-d25f8894ae02.jpg?imageView2/2/w/800/q/70/format/webp"
-            cost={643.38}
+      <View>
+        <FlatList
+          data={productList}
+          renderItem={({item}) => <ShopItemComp
+            name={item.name}
+            img={item.img}
+            cost={item.cost}
             isDarkMode={isDarkMode}
-          />
-          <ShopItemComp
-            name="1080P HD Action Camera Featuring Ultra HD Recording"
-            img="https://img.kwcdn.com/product/fancy/218d5ebf-68bb-4144-8c0b-10a2f1f522c5.jpg?imageView2/2/w/800/q/70/format/webp"
-            cost={776.50}
-            isDarkMode={isDarkMode}
-          />
-          <ShopItemComp
-            name="Wireless Polarized Fashion Glasses with Integrated Mic"
-            img="https://img.kwcdn.com/product/fancy/4bdcf821-6548-4db4-9113-8936faa74533.jpg?imageView2/2/w/800/q/70/format/webp"
-            cost={277.32}
-            isDarkMode={isDarkMode}
-          />
-          <ShopItemComp
-            name="Solar-Powered, Hand Crank, NOAA AM/FM Weather Radio"
-            img="https://img.kwcdn.com/product/fancy/02747c7e-0a61-463b-a101-5e6f5388ece5.jpg?imageView2/2/w/800/q/70/format/webp"
-            cost={1671.32}
-            isDarkMode={isDarkMode}
-          />
-          <ShopItemComp
-            name="Rievbcau Digital USB Microscope with 10.92cm LCD, 1000X Zoom, PC Real-Time View"
-            img="https://img.kwcdn.com/product/fancy/a805d7f2-37ce-4ac4-aaea-0bf21a88ec0f.jpg?imageView2/2/w/800/q/70/format/webp"
-            cost={1419.88}
-            isDarkMode={isDarkMode}
-          />
-        </ScrollView>
+          />}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal={true}
+          contentContainerStyle={styles.cardWrapper}
+        />
       </View>
     </SafeAreaView>
   );
@@ -94,9 +104,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 20,
     paddingBottom: 20
-  },
-  wrapperContainer: {
-    overflow: "hidden"
   }
 });
 
