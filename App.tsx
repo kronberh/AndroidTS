@@ -1,110 +1,74 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Switch,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  FlatList
-} from "react-native";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { Product, ShopItemComp } from "./components/ShopItemComp";
-import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
+import { Text, SafeAreaView, StatusBar, FlatList, useWindowDimensions } from "react-native";
+import { Race, BusforCard } from "./components/BusforCard";
 
-const App = () => {
-  const products: Array<Product> = [
+export default function App() {
+  const [races, setRaces] = useState<Array<Race>>([
     {
-      name: "Wireless 5.3 Headphones, 13mm Speaker, 30H Playtime, Type-C Fast Charging Box",
-      img: "https://img.kwcdn.com/product/fancy/4cb5447a-b90f-495e-a9a8-d25f8894ae02.jpg?imageView2/2/w/800/q/70/format/webp",
-      cost: 643.38
+      timeFrom: new Date(0, 0, 0, 8, 0, 0, 0),
+      timeTo: new Date(0, 0, 0, 14, 45, 0, 0),
+      locationFrom: "Автостанція \"Привокзальна\"",
+      locationTo: "Зупинка громадського транспорту",
+      cost: 585,
+      places: 6
     },
     {
-      name: "1080P HD Action Camera Featuring Ultra HD Recording",
-      img: "https://img.kwcdn.com/product/fancy/218d5ebf-68bb-4144-8c0b-10a2f1f522c5.jpg?imageView2/2/w/800/q/70/format/webp",
-      cost: 776.50
+      timeFrom: new Date(0, 0, 0, 8, 15, 0, 0),
+      timeTo: new Date(0, 0, 0, 14, 45, 0, 0),
+      locationFrom: "Зупинка тролейбусу №8",
+      locationTo: "Зупинка громадського транспорту",
+      cost: 585,
+      places: 6
     },
     {
-      name: "Wireless Polarized Fashion Glasses with Integrated Mic",
-      img: "https://img.kwcdn.com/product/fancy/4bdcf821-6548-4db4-9113-8936faa74533.jpg?imageView2/2/w/800/q/70/format/webp",
-      cost: 277.32
-    },
-    {
-      name: "Solar-Powered, Hand Crank, NOAA AM/FM Weather Radio",
-      img: "https://img.kwcdn.com/product/fancy/02747c7e-0a61-463b-a101-5e6f5388ece5.jpg?imageView2/2/w/800/q/70/format/webp",
-      cost: 1671.32
-    },
-    {
-      name: "Rievbcau Digital USB Microscope with 10.92cm LCD, 1000X Zoom, PC Real-Time View",
-      img: "https://img.kwcdn.com/product/fancy/a805d7f2-37ce-4ac4-aaea-0bf21a88ec0f.jpg?imageView2/2/w/800/q/70/format/webp",
-      cost: 1419.88
+      timeFrom: new Date(0, 0, 0, 8, 0, 0, 0),
+      timeTo: new Date(0, 0, 0, 15, 0, 0, 0),
+      locationFrom: "Автостанція \"Привокзальна\"",
+      locationTo: "Автовокзал \"Центральний\"",
+      cost: 585,
+      places: 6
     }
-  ];
+  ]);
 
-  const [productList, setProductList] = useState<Array<Product>>(products);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const { width, height } = useWindowDimensions();
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? "#333" : "#fff" },
-      ]}
-    >
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
-      <View style={styles.header}>
-        <Text style={[styles.headerText, { color: isDarkMode ? "#fff" : "#000" }]}>Products</Text>
-        <View style={styles.switchContainer}>
-          <MaterialIcons name={ isDarkMode ? "dark-mode" : "light-mode" } color={isDarkMode ? "#fff" : "#000" } />
-          <Switch
-            trackColor={{ false: "#767577", true: "#f4f3f4" }}
-            thumbColor={isDarkMode ? "#767577" : "#f4f3f4"}
-            onValueChange={setIsDarkMode}
-            value={isDarkMode}
-          />
-        </View>
-      </View>
-      <View>
-        <FlatList
-          data={productList}
-          renderItem={({item}) => <ShopItemComp
-            name={item.name}
-            img={item.img}
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="#f9253e" />
+      <FlatList
+        data={races}
+        renderItem={({item}) => 
+          <BusforCard
+            timeFrom={item.timeFrom}
+            timeTo={item.timeTo}
+            locationFrom={item.locationFrom}
+            locationTo={item.locationTo}
             cost={item.cost}
-            isDarkMode={isDarkMode}
-          />}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal={true}
-          contentContainerStyle={styles.cardWrapper}
-        />
-      </View>
+            places={item.places}
+            shouldBePrinted={Boolean(Math.round(Math.random()))}
+          />
+        }
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.flatlist}
+      />
     </SafeAreaView>
   );
-};
+}
+
+import { StyleSheet, Platform } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold"
-  },
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  cardWrapper: {
-    flexDirection: "row",
     gap: 20,
-    paddingBottom: 20
+    paddingTop: Platform.select({
+      android: StatusBar.currentHeight,
+      default: 0
+    }),
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  flatlist: {
+    gap: 20
   }
 });
-
-export default App;
