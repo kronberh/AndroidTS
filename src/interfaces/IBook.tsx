@@ -1,0 +1,10 @@
+interface IBook {
+    id: string;
+    title: string;
+    author: string;
+    description: string;
+    authorDescription: string;
+    image: string
+}
+
+export { IBook };
