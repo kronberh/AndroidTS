@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
         color: "gray"
     },
     bookAuthorButton: {
-        backgroundColor: "lightblue",
+        backgroundColor: "cornflowerblue",
         padding: 5,
         borderRadius: 99,
         width: 150,

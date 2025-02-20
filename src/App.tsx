@@ -1,68 +1,76 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { HomeScreen } from "./screens/HomeScreen";
-import { BookDetailScreen } from "./screens/BookDetailScreen";
-import { AuthorDetailScreen } from "./screens/AuthorDetailScreen";
-import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet } from "react-native";
+import { Platform, Image, SafeAreaView, StatusBar, StyleSheet, useWindowDimensions, View, ImageBackground } from "react-native";
 import { scale } from "react-native-size-matters";
-import { OlxCard, Product } from "./components/OlxCard";
+import { RaceForm } from "./components/RaceForm";
+import { SvgUri } from 'react-native-svg';
 
-const Stack = createNativeStackNavigator();
-const products: Product[] = [
-  {
-    name: "Мʼяка іграшка нічник Веселий Стіч з функцією дихання",
-    cost: 550,
-    img: "https://ireland.apollo.olxcdn.com/v1/files/l8yj0ojak7so-UA/image;s=1000x700",
-    place: "Рівне",
-    date: new Date(2025, 1, 13)
-  },
-  {
-    name: "Каляска коляска дитячий візочок трансформер Бугабу Хамелеон 3Bugaboo",
-    cost: 6150,
-    img: "https://ireland.apollo.olxcdn.com/v1/files/rqs8ievt5rsr3-UA/image;s=1000x700",
-    place: "Корсунь-Шевченківський",
-    date: new Date(2025, 1, 17)
-  },
-  {
-    name: "Туя Смарагд 40-50 см у горщику 2 л; ялинки, ялівці, сосни, хвойні росл",
-    cost: 85,
-    img: "https://ireland.apollo.olxcdn.com/v1/files/qeku9q6306qb3-UA/image;s=1000x700",
-    place: "Сміла",
-    date: new Date(2025, 1, 16)
-  },
-  {
-    name: "Тюльпан голандський вирощений в Украіні 45 см+ бутон 10-12",
-    cost: 32,
-    img: "https://ireland.apollo.olxcdn.com/v1/files/l9dzv7fqkokp2-UA/image;s=1000x700",
-    place: "Зимна Вода",
-    date: new Date(2025, 1, 17)
-  },
-];
+// const Tab = createBottomTabNavigator();
+// const Stack = createNativeStackNavigator();
+// const BooksStackScreens = () => (
+//   <Stack.Navigator>
+//     <Stack.Screen name="Home" component={HomeScreen} />
+//     <Stack.Screen name="Book" component={BookDetailScreen} />
+//     <Stack.Screen name="Author" component={AuthorDetailScreen} />
+//   </Stack.Navigator>
+// )
+// const SettingsStackScreens = () => (
+//   <Stack.Navigator>
+//     <Stack.Screen name="Settings" component={SettingsScreen} />
+//     <Stack.Screen name="AdvancedSettings" component={AdvancedSettingsScreen} />
+//   </Stack.Navigator>
+// )
+// const ProfileStackScreens = () => (
+//   <Stack.Navigator>
+//     <Stack.Screen name="Profile" component={ProfileScreen} />
+//   </Stack.Navigator>
+// )
 
 function App() {
+  const { width, height } = useWindowDimensions();
+
   return (
-    //<NavigationContainer>
-    //   <Stack.Navigator>
-    //     <Stack.Screen name="Home" component={HomeScreen} />
-    //     <Stack.Screen name="Book" component={BookDetailScreen} />
-    //     <Stack.Screen name="Author" component={AuthorDetailScreen} />
-    //   </Stack.Navigator>
+    // <NavigationContainer>
+    //   <Tab.Navigator
+    //     screenOptions={({route}) => ({
+    //       tabBarIcon: ({ color, size }) => {
+    //         if (route.name === "Home") {
+    //           return <MaterialIcons name="home" size={size} color={color} />
+    //         }
+    //         else if (route.name === "Settings") {
+    //           return <MaterialIcons name="settings" size={size} color={color} />
+    //         }
+    //         else if (route.name === "Profile") {
+    //           return <MaterialIcons name="person" size={size} color={color} />
+    //         }
+    //         else {
+    //           return <MaterialIcons name="question-mark" size={size} color={color} />
+    //         }
+    //       },
+    //       tabBarActiveTintColor: "cornflowerblue",
+    //       tabBarInactiveTintColor: "gray",
+    //       headerShown: false
+    //     })}
+    //   >
+    //     <Tab.Screen name="Home" component={BooksStackScreens} />
+    //     <Tab.Screen name="Settings" component={SettingsStackScreens} />
+    //     <Tab.Screen name="Profile" component={ProfileStackScreens} />
+    //   </Tab.Navigator>
     // </NavigationContainer>
+
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={products}
-        renderItem={({item}) =>
-          <OlxCard
-            name={item.name}
-            cost={item.cost}
-            img={item.img}
-            place={item.place}
-            date={item.date}
-          />
-        }
-        keyExtractor={(item, idx) => idx.toString()}
-        contentContainerStyle = {styles.list}
-      />
+      <ImageBackground
+        source={{uri: "https://allenjoystudio.com/cdn/shop/files/Snowy_Winter_Scene_Photography_Backdrop_GB_NKWVW2T_Square.jpg?v=1718386693"}}
+        resizeMode="cover"
+        style={[styles.container, styles.bgImage]}
+      >
+        <View style={styles.overlay} />
+        <SvgUri
+          width={scale(500)}
+          height={scale(50)}
+          uri="https://busfor.ua/packs/_/assets/javascripts/new/app/react/components/Header/dotua_bbc_redirection_logo_white-8ac168364606ee78c0ccfc540d5d3031.svg"
+        />
+        <RaceForm orientation={(width > height) ? "landscape" : "portrait"} />
+      </ImageBackground>
+      <StatusBar backgroundColor="tomato" />
     </SafeAreaView>
   );
 }
@@ -72,17 +80,20 @@ export default App;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: scale(20),
+    justifyContent: "center",
+    backgroundColor: "lightblue"
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)"
+  },
+  bgImage: {
+    gap: 50,
+    alignItems: "center",
     paddingTop: Platform.select({
       ios: 0,
       default: StatusBar.currentHeight
     }),
-    backgroundColor: "#ddd"
-  },
-  list: {
-    gap: scale(20),
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-evenly"
+    padding: scale(20)
   }
 })

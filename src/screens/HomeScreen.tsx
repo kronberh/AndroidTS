@@ -4,7 +4,6 @@ import { books } from "../data/books";
 
 function HomeScreen({navigation}: any) {
   return <View style={styles.container}>
-    <Text style={styles.header}>Books</Text>
     <FlatList
       data={books}
       renderItem={({item}) =>
