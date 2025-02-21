@@ -1,9 +1,9 @@
 interface IBook {
-    id: string;
+    id: number;
+    author_id: number,
+    genre_id: number,
     title: string;
-    author: string;
     description: string;
-    authorDescription: string;
     image: string
 }
 

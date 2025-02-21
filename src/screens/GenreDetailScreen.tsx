@@ -1,16 +1,18 @@
-import { FlatList, Text, TouchableOpacity, View, Image } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import { styles } from "../styles/styles";
-import { books } from "../data/books";
 import { authors } from "../data/authors";
-import { genres } from "../data/genres";
+import { books } from "../data/books";
 
-function HomeScreen({navigation}: any) {
+function GenreDetailScreen({navigation, route}: any) {
+  const { genre } = route.params;
+
   return <View style={styles.container}>
+    <Text style={styles.title}>{genre.name}</Text>
+    <Text style={styles.description}>{genre.description}</Text>
     <FlatList
-      data={books}
+      data={books.filter((value) => value.genre_id == genre.id)}
       renderItem={({item}) => {
         const author = authors.find((value) => value.id == item.author_id);
-        const genre = genres.find((value) => value.id == item.genre_id);
         return (
           <TouchableOpacity
             style={styles.bookItem}
@@ -30,4 +32,4 @@ function HomeScreen({navigation}: any) {
   </View>
 }
 
-export { HomeScreen };
+export { GenreDetailScreen };

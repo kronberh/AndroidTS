@@ -19,11 +19,11 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 15
     },
-    bookTitle: {
+    title: {
         fontSize: 18,
         fontWeight: "bold"
     },
-    bookAuthor: {
+    subtitle: {
         fontSize: 14,
         color: "gray"
     },
@@ -31,17 +31,28 @@ const styles = StyleSheet.create({
         backgroundColor: "cornflowerblue",
         padding: 5,
         borderRadius: 99,
-        width: 150,
+        alignSelf: "baseline",
+        marginBottom: 5
     },
     bookAuthorButtonText: {
         color: "white",
         textAlign: "center"
     },
-    bookDescription: {
+    bookGenreButton: {
+        backgroundColor: "orchid",
+        padding: 5,
+        borderRadius: 99,
+        alignSelf: "baseline"
+    },
+    bookGenreButtonText: {
+        color: "white",
+        textAlign: "center"
+    },
+    description: {
         fontSize: 16,
         marginTop: 10
     },
-    bookImage: {
+    itemImage: {
         width: 50,
         height: 50,
         resizeMode: "cover"
