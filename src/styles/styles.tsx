@@ -6,18 +6,17 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: "#f5f5f5"
     },
-    header: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 20
-    },
     bookItem: {
         padding: 15,
         backgroundColor: "#fff",
         marginBottom: 10,
         borderRadius: 8,
         flexDirection: "row",
-        gap: 15
+        gap: 15,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     title: {
         fontSize: 18,
@@ -57,8 +56,34 @@ const styles = StyleSheet.create({
         height: 50,
         resizeMode: "cover"
     },
+    actions: {
+        flexDirection: "row"
+    },
     bookCover: {
         height: 500
+    },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-evenly",
+        alignItems: "center",
+        paddingBottom: 20
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        padding: 20,
+        backgroundColor: "white",
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: "#ccc",
+        padding: 12,
+        marginBottom: 12,
+        borderRadius: 6,
+    },
+    modalActions: {
+        flexDirection: "row",
+        justifyContent: "space-between"
     }
 });
 

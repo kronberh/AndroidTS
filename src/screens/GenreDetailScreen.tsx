@@ -1,10 +1,30 @@
+import * as SQLite from "expo-sqlite";
 import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import { styles } from "../styles/styles";
 import { authors } from "../data/authors";
-import { books } from "../data/books";
+import { useEffect, useState } from "react";
+import { IBook } from "../interfaces/IBook";
+
+let db: SQLite.SQLiteDatabase | null = null;
 
 function GenreDetailScreen({navigation, route}: any) {
   const { genre } = route.params;
+  const [books, setBooks] = useState<IBook[]>([]);
+
+  const openDatabase = async () => {
+    db = await SQLite.openDatabaseAsync("books.db");
+    fetchBooks();
+  };
+
+  const fetchBooks = async () => {
+    if (!db) return;
+    const result = await db.getAllAsync<IBook>("SELECT * FROM books;");
+    setBooks(result);
+  };
+
+  useEffect(() => {
+    openDatabase();
+  }, []);
 
   return <View style={styles.container}>
     <Text style={styles.title}>{genre.name}</Text>
