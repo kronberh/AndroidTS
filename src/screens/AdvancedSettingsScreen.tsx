@@ -1,7 +1,7 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { styles } from "../styles/styles";
 
-function AdvancedSettingsScreen({navigation}: any) {
+function AdvancedSettingsScreen() {
   return (
     <View style={styles.container}>
     </View>

@@ -1,14 +1,14 @@
-import * as SQLite from "expo-sqlite";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlatList, Text, TouchableOpacity, View, Image, Button, Modal, TextInput, Alert } from "react-native";
+import { useCallback, useState } from "react";
 import { styles } from "../styles/styles";
 import { authors } from "../data/authors";
 import { genres } from "../data/genres";
-import { useEffect, useState } from "react";
 import { IBook } from "../interfaces/IBook";
-import "react-native-get-random-values";
+import { IUser } from "../interfaces/IUser";
 import { v4 as uuidv4 } from "uuid";
-
-let db: SQLite.SQLiteDatabase | null = null;
+import { APP_SERVER } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
 
 function HomeScreen({navigation}: any) {
   const [books, setBooks] = useState<IBook[]>([]);
@@ -18,38 +18,18 @@ function HomeScreen({navigation}: any) {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [currentBook, setCurrentBook] = useState<IBook | null>(null);
+  const [currentUser, setCurrentUser] = useState<IUser>();
 
-  const openDatabase = async () => {
-    db = await SQLite.openDatabaseAsync("books.db");
-    createTable();
-    fetchBooks();
-  };
-
-  const createTable = async () => {
-    if (!db) return;
-    await db.execAsync(`
-      CREATE TABLE IF NOT EXISTS books (
-        id NUMBER PRIMARY KEY,
-        author_id NUMBER NOT NULL,
-        genre_id NUMBER NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        image TEXT NOT NULL
-      );
-    `);
-  };
-
-  const fetchBooks = async () => {
-    if (!db) return;
-    const result = await db.getAllAsync<IBook>("SELECT * FROM books;");
-    setBooks(result);
-  };
+  const tryLogin = async () => {
+    const testUser = await AsyncStorage.getItem("user");
+    if (testUser) {
+      setCurrentUser(JSON.parse(testUser));
+    } else {
+      setCurrentUser(undefined);
+    }
+  }
 
   const saveBook = async () => {
-    if (!db) {
-      console.error("❌ Помилка при з'єднанні до БД!");
-      return;
-    }
     if (!title || !description) {
       Alert.alert("Помилка", "Введіть назву та опис");
       return;
@@ -57,20 +37,25 @@ function HomeScreen({navigation}: any) {
     if (!currentBook) {
       const id = uuidv4();
       try {
-        await db.runAsync(
-          "INSERT INTO books (id, title, author_id, genre_id, description, image) VALUES (?, ?, ?, ?, ?, ?);",
-          [id, title, Math.floor(Math.random() * 3 + 1), Math.floor(Math.random() * 3 + 1), description, "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"]
-        );
+        const response = await fetch(`${APP_SERVER}`, {
+          method: "POST",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({title, description})
+        });
+        const data: IBook = await response.json();
+        if (data) {
+          console.log(`Added book: ${JSON.stringify(data)}`)
+        }
         await fetchBooks();
       } catch (error) {
         console.error("❌ Помилка при додаванні книги:", error);
       }
     } else {
       try {
-        await db.runAsync(
-          "UPDATE books SET title = ?, description = ? WHERE id = ?;",
-          [title, description, currentBook.id]
-        );
+        // todo put request
         closeAddModal();
         await fetchBooks();
       } catch (error) {
@@ -81,8 +66,7 @@ function HomeScreen({navigation}: any) {
   };
 
   const deleteBook = async (id: number) => {
-    if (!db) return;
-    await db.runAsync("DELETE FROM books WHERE id = ?;", [id]);
+    // todo delete request
     await fetchBooks();
   };
 
@@ -93,20 +77,13 @@ function HomeScreen({navigation}: any) {
   };
 
   async function clearBooks() {
-    if (!db) return;
-    await db.runAsync(
-      "DELETE FROM books"
-    );
+    // todo delete request
     await fetchBooks();
     setClearVisible(false);
   }
 
   async function nukeData() {
-    if (!db) return;
-    await db.runAsync(
-      "DELETE FROM books"
-      // maybe more tables
-    );
+    // todo delete request
     await fetchBooks();
     setNukeVisible(false);
   }
@@ -118,12 +95,30 @@ function HomeScreen({navigation}: any) {
     setSaveVisible(false);
   }
 
-  useEffect(() => {
-    openDatabase();
-  }, []);
+  const fetchBooks = async () => {
+    try {
+      const response = await fetch(`${APP_SERVER}`)
+      const data :IBook[] = await response.json();
+      if (data) {
+        setBooks(data);
+      } else {
+        console.warn('no data')
+      }
+    } catch (error) {
+      throw new Error("Error fetching books from server.");
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchBooks();
+      tryLogin();
+    }, [])
+  );
 
   return <View style={styles.container}>
     <View style={styles.header}>
+    {currentUser && <>
       <Button
         title="Add book"
         onPress={() => setSaveVisible(true)}
@@ -136,6 +131,12 @@ function HomeScreen({navigation}: any) {
         title="Clear everything"
         onPress={() => setNukeVisible(true)}
       />
+    </>}
+    {!currentUser && <>
+      <Text style={styles.title}>You need to</Text>
+      <Button title="Log in" onPress={() => navigation.navigate("Profile")} />
+      <Text style={styles.title}>to modify data.</Text>
+    </>}
     </View>
     <FlatList
       data={books}
@@ -152,19 +153,21 @@ function HomeScreen({navigation}: any) {
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.subtitle}>{author?.name}</Text>
               <Text style={styles.subtitle}>{genre?.name}</Text>
-              <View style={styles.actions}>
-                <Button
-                  title="Edit"
-                  onPress={() => {
-                    selectBookToEdit(item);
-                    setSaveVisible(true);
-                  }}
-                />
-                <Button
-                  title="Delete"
-                  onPress={() => deleteBook(item.id)}
-                />
-              </View>
+              {currentUser && <>
+                <View style={styles.actions}>
+                  <Button
+                    title="Edit"
+                    onPress={() => {
+                      selectBookToEdit(item);
+                      setSaveVisible(true);
+                    }}
+                  />
+                  <Button
+                    title="Delete"
+                    onPress={() => deleteBook(item.id)}
+                  />
+                </View>
+              </>}
             </View>
           </TouchableOpacity>
         );

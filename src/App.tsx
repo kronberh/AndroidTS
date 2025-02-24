@@ -18,6 +18,12 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
+const icons: Record<string, string> = {
+  "Home": "home",
+  "Settings": "settings",
+  "Profile": "person",
+};
+
 function HomeDrawer() {
   return (
     <Drawer.Navigator initialRouteName="Home">
@@ -62,11 +68,6 @@ function App() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
-            const icons: Record<string, string> = {
-              "Home": "home",
-              "Settings": "settings",
-              "Profile": "person",
-            };
             return <MaterialIcons name={icons[route.name] || "question-mark"} size={size} color={color} />;
           },
           tabBarActiveTintColor: "cornflowerblue",

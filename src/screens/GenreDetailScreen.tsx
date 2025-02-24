@@ -2,8 +2,9 @@ import * as SQLite from "expo-sqlite";
 import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import { styles } from "../styles/styles";
 import { authors } from "../data/authors";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { IBook } from "../interfaces/IBook";
+import { useFocusEffect } from "@react-navigation/native";
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -22,9 +23,11 @@ function GenreDetailScreen({navigation, route}: any) {
     setBooks(result);
   };
 
-  useEffect(() => {
-    openDatabase();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      openDatabase();
+    }, [])
+  );
 
   return <View style={styles.container}>
     <Text style={styles.title}>{genre.name}</Text>

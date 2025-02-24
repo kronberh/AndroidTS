@@ -84,6 +84,12 @@ const styles = StyleSheet.create({
     modalActions: {
         flexDirection: "row",
         justifyContent: "space-between"
+    },
+    error: {
+        color: "red",
+        flex: 1,
+        textAlign: "center",
+        textAlignVertical: "center"
     }
 });
 
