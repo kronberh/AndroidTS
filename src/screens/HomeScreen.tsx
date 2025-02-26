@@ -1,12 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FlatList, Text, TouchableOpacity, View, Image, Button, Modal, TextInput, Alert } from "react-native";
+import { FlatList, Text, TouchableOpacity, View, Image, Button, Modal, TextInput, Alert, ActivityIndicator } from "react-native";
 import { useCallback, useState } from "react";
 import { styles } from "../styles/styles";
 import { authors } from "../data/authors";
 import { genres } from "../data/genres";
 import { IBook } from "../interfaces/IBook";
 import { IUser } from "../interfaces/IUser";
-import { v4 as uuidv4 } from "uuid";
 import { APP_SERVER } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -19,6 +18,7 @@ function HomeScreen({navigation}: any) {
   const [description, setDescription] = useState<string>("");
   const [currentBook, setCurrentBook] = useState<IBook | null>(null);
   const [currentUser, setCurrentUser] = useState<IUser>();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const tryLogin = async () => {
     const testUser = await AsyncStorage.getItem("user");
@@ -35,7 +35,6 @@ function HomeScreen({navigation}: any) {
       return;
     }
     if (!currentBook) {
-      const id = uuidv4();
       try {
         const response = await fetch(`${APP_SERVER}`, {
           method: "POST",
@@ -49,24 +48,42 @@ function HomeScreen({navigation}: any) {
         if (data) {
           console.log(`Added book: ${JSON.stringify(data)}`)
         }
-        await fetchBooks();
       } catch (error) {
         console.error("❌ Помилка при додаванні книги:", error);
       }
     } else {
       try {
-        // todo put request
-        closeAddModal();
-        await fetchBooks();
+        const response = await fetch(`${APP_SERVER}/${currentBook.id}`, {
+          method: "PATCH",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({title, description})
+        });
+        const data: IBook = await response.json();
+        if (data) {
+          console.log(`Updated book: ${JSON.stringify(data)}`)
+        }
       } catch (error) {
         console.error("❌ Помилка при редагуванні книги:", error);
       }
     }
+    await fetchBooks();
     closeAddModal();
   };
 
   const deleteBook = async (id: number) => {
-    // todo delete request
+    try {
+      const response = await fetch(`${APP_SERVER}/${id}`, {
+        method: "DELETE"
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+    } catch (error) {
+      console.error("❌ Помилка при видаленні книги:", error);
+    }
     await fetchBooks();
   };
 
@@ -77,13 +94,13 @@ function HomeScreen({navigation}: any) {
   };
 
   async function clearBooks() {
-    // todo delete request
+    // todo delete books request
     await fetchBooks();
     setClearVisible(false);
   }
 
   async function nukeData() {
-    // todo delete request
+    // todo delete all request
     await fetchBooks();
     setNukeVisible(false);
   }
@@ -96,6 +113,7 @@ function HomeScreen({navigation}: any) {
   }
 
   const fetchBooks = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${APP_SERVER}`)
       const data :IBook[] = await response.json();
@@ -106,6 +124,8 @@ function HomeScreen({navigation}: any) {
       }
     } catch (error) {
       throw new Error("Error fetching books from server.");
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -118,7 +138,7 @@ function HomeScreen({navigation}: any) {
 
   return <View style={styles.container}>
     <View style={styles.header}>
-    {currentUser && <>
+    {currentUser ? <>
       <Button
         title="Add book"
         onPress={() => setSaveVisible(true)}
@@ -131,49 +151,55 @@ function HomeScreen({navigation}: any) {
         title="Clear everything"
         onPress={() => setNukeVisible(true)}
       />
-    </>}
-    {!currentUser && <>
+    </> : <>
       <Text style={styles.title}>You need to</Text>
       <Button title="Log in" onPress={() => navigation.navigate("Profile")} />
       <Text style={styles.title}>to modify data.</Text>
     </>}
     </View>
-    <FlatList
-      data={books}
-      renderItem={({item}) => {
-        const author = authors.find((value) => value.id == item.author_id);
-        const genre = genres.find((value) => value.id == item.genre_id);
-        return (
-          <TouchableOpacity
-            style={styles.bookItem}
-            onPress={() => navigation.navigate("Book", {book: item})}
-          >
-            <Image style={styles.itemImage} source={{uri: item.image}} />
-            <View>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.subtitle}>{author?.name}</Text>
-              <Text style={styles.subtitle}>{genre?.name}</Text>
-              {currentUser && <>
-                <View style={styles.actions}>
-                  <Button
-                    title="Edit"
-                    onPress={() => {
-                      selectBookToEdit(item);
-                      setSaveVisible(true);
-                    }}
-                  />
-                  <Button
-                    title="Delete"
-                    onPress={() => deleteBook(item.id)}
-                  />
-                </View>
-              </>}
-            </View>
-          </TouchableOpacity>
-        );
-      }}
-      keyExtractor={(item) => item.id.toString()}
-    />
+    {loading ? <>
+      <ActivityIndicator
+        size="large"
+        color="cornflowerblue"
+      />
+    </> : <>
+      <FlatList
+        data={books}
+        renderItem={({item}) => {
+          const author = authors.find((value) => value.id == item.author_id);
+          const genre = genres.find((value) => value.id == item.genre_id);
+          return (
+            <TouchableOpacity
+              style={styles.bookItem}
+              onPress={() => navigation.navigate("Book", {book: item})}
+            >
+              <Image style={styles.itemImage} source={{uri: item.image}} />
+              <View>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.subtitle}>{author?.name}</Text>
+                <Text style={styles.subtitle}>{genre?.name}</Text>
+                {currentUser && <>
+                  <View style={styles.actions}>
+                    <Button
+                      title="Edit"
+                      onPress={() => {
+                        selectBookToEdit(item);
+                        setSaveVisible(true);
+                      }}
+                    />
+                    <Button
+                      title="Delete"
+                      onPress={() => deleteBook(item.id)}
+                    />
+                  </View>
+                </>}
+              </View>
+            </TouchableOpacity>
+          );
+        }}
+        keyExtractor={(item) => item.id.toString()}
+      />
+    </>}
     <Modal
       visible={saveVisible}
       onRequestClose={closeAddModal}

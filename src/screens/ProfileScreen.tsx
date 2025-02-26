@@ -116,11 +116,10 @@ function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      {currentUser && <>
+      {currentUser ? <>
         <Text style={styles.title}>Hello {currentUser.login}!</Text>
         <Button title="Logout" onPress={handleLogout} />
-      </>}
-      {!currentUser && <>
+      </> : <>
         <TextInput style={styles.input} placeholder="Login" value={login} onChangeText={setLogin} />
         <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry={true} />
         <View style={styles.actions}>
